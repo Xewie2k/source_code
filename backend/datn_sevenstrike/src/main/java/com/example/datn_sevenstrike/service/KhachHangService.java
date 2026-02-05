@@ -42,6 +42,12 @@ public class KhachHangService {
         return toResponse(e);
     }
 
+    public KhachHangResponse getDemoUser() {
+        return repo.findTopByXoaMemFalseOrderByIdDesc()
+                .map(this::toResponse)
+                .orElseThrow(() -> new NotFoundEx("Không có khách hàng nào trong DB để demo"));
+    }
+
     @Transactional
     public KhachHangResponse create(KhachHangRequest req) {
         if (req == null) throw new BadRequestEx("Thiếu dữ liệu tạo mới");
@@ -70,6 +76,7 @@ public class KhachHangService {
         if (req.getSoDienThoai() != null) db.setSoDienThoai(req.getSoDienThoai());
         if (req.getGioiTinh() != null) db.setGioiTinh(req.getGioiTinh());
         if (req.getNgaySinh() != null) db.setNgaySinh(req.getNgaySinh());
+        if (req.getAnhDaiDien() != null) db.setAnhDaiDien(req.getAnhDaiDien());
 
         if (req.getNguoiCapNhat() != null) db.setNguoiCapNhat(req.getNguoiCapNhat());
         db.setNgayCapNhat(LocalDateTime.now());

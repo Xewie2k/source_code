@@ -13,6 +13,8 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
 
     List<KhachHang> findAllByXoaMemFalseOrderByIdDesc();
 
+    Optional<KhachHang> findTopByXoaMemFalseOrderByIdDesc();
+
     Optional<KhachHang> findByIdAndXoaMemFalse(Integer id);
 
     Page<KhachHang> findAllByXoaMemFalse(Pageable pageable);
