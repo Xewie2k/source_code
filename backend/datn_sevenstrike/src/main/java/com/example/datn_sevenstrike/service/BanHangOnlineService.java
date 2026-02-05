@@ -260,6 +260,7 @@ public class BanHangOnlineService {
                 .emailKhachHang(req.getEmail())
                 .ghiChu(req.getGhiChu())
                 .idPhieuGiamGia(voucher != null ? voucher.getId() : null)
+                .idKhachHang(req.getIdKhachHang())
                 .tongTien(tongTien)
                 .tongTienSauGiam(thanhTien)
                 .phiVanChuyen(BigDecimal.ZERO)

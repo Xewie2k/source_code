@@ -5,7 +5,6 @@
         <img :src="avatarUrl" class="rounded-circle border" width="80" height="80" alt="Avatar">
       </div>
       <h6 class="fw-bold mb-1">{{ userName }}</h6>
-      <button class="btn btn-sm btn-light border mt-1" style="font-size: 12px;">CHỌN ẢNH</button>
     </div>
     
     <div class="menu">

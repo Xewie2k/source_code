@@ -18,5 +18,6 @@ public class OrderRequest {
     private String diaChi;
     private String ghiChu;
     private Integer idPhieuGiamGia;
+    private Integer idKhachHang;
     private List<OrderItemRequest> items;
 }

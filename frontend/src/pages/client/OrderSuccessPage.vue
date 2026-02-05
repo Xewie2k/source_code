@@ -33,7 +33,7 @@
              <!-- Case 1: COD Order ID available -->
              <div v-if="orderId" class="d-flex justify-content-between mb-2">
                  <span class="text-secondary">Mã đơn hàng:</span>
-                 <span class="fw-bold">#{{ orderId }}</span>
+                 <span class="fw-bold">{{ orderCode ? '#' + orderCode : '#' + orderId }}</span>
              </div>
 
              <!-- Case 2: VNPAY Info -->
@@ -69,12 +69,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import apiClient from '@/services/apiClient';
 
 const route = useRoute();
 const loading = ref(true);
 const success = ref(false);
 
 const orderId = ref(null);
+const orderCode = ref(null);
 const transactionId = ref(null);
 const totalPrice = ref(null);
 const orderInfo = ref(null);
@@ -87,19 +89,16 @@ const formatPrice = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 };
 
-onMounted(() => {
+onMounted(async () => {
     // Check params
     // 1. COD: ?id=...
     if (route.query.id) {
         orderId.value = route.query.id;
         success.value = true;
-        // Fetch order details if needed, but for now ID is enough
-        loading.value = false;
-        return;
     }
 
     // 2. VNPAY: ?status=success|failed & ...
-    if (route.query.status) {
+    else if (route.query.status) {
         success.value = route.query.status === 'success';
         transactionId.value = route.query.transactionId;
         
@@ -117,13 +116,10 @@ onMounted(() => {
                 orderId.value = match[0];
             }
         }
-        
-        loading.value = false;
-        return;
     }
     
     // 3. Xử lý kết quả trực tiếp từ VNPay (vnp_ResponseCode)
-    if (route.query.vnp_ResponseCode) {
+    else if (route.query.vnp_ResponseCode) {
         success.value = route.query.vnp_ResponseCode === '00';
         transactionId.value = route.query.vnp_TransactionNo;
         // vnp_Amount của VNPay luôn nhân 100, nên cần chia 100
@@ -134,13 +130,21 @@ onMounted(() => {
             const match = orderInfo.value.match(/\d+/);
             if (match) orderId.value = match[0];
         }
-        loading.value = false;
-        return;
     }
 
-    // Fallback if no params
+    // Fetch details to get Order Code
+    if (orderId.value) {
+        try {
+            const res = await apiClient.get(`/api/client/orders/${orderId.value}`);
+            if (res.data && res.data.maHoaDon) {
+                orderCode.value = res.data.maHoaDon;
+            }
+        } catch (e) {
+            console.error("Failed to fetch order details", e);
+        }
+    }
+
     loading.value = false;
-    success.value = false; // Or redirect to home
 });
 </script>
 
