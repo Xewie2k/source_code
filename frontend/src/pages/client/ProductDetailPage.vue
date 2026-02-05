@@ -250,7 +250,11 @@ const formatPrice = (value) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 };
 
-onMounted(fetchProduct);
+onMounted(() => {
+    // SIMULATION: Giả định đã đăng nhập là Nguyễn Văn A (ID=1)
+    localStorage.setItem('userId', '1');
+    fetchProduct();
+});
 
 watch(() => props.id, fetchProduct);
 

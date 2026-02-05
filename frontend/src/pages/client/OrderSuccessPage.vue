@@ -49,6 +49,24 @@
              <div v-if="orderInfo" class="mt-3 small text-muted fst-italic">
                 "{{ orderInfo }}"
              </div>
+
+             <!-- Hiển thị danh sách sản phẩm -->
+             <div v-if="orderItems.length" class="mt-4 pt-3 border-top">
+                 <h6 class="fw-bold mb-3 text-uppercase text-muted" style="font-size: 11px;">Sản phẩm đã đặt</h6>
+                 <div v-for="item in orderItems" :key="item.id" class="d-flex gap-3 mb-3">
+                     <img :src="item.anh || '/placeholder-shoe.png'" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;">
+                     <div class="flex-grow-1" style="font-size: 13px;">
+                         <div class="fw-bold text-dark text-truncate" style="max-width: 200px;">{{ item.tenSanPham }}</div>
+                         <div class="text-muted small">
+                             {{ item.mauSac }} / {{ item.kichThuoc }} <br>
+                             x{{ item.soLuong }}
+                         </div>
+                     </div>
+                     <div class="fw-bold text-dark small">
+                         {{ formatPrice(item.donGia) }}
+                     </div>
+                 </div>
+             </div>
         </div>
         
         <div class="d-flex gap-3 justify-content-center">
@@ -80,6 +98,7 @@ const orderCode = ref(null);
 const transactionId = ref(null);
 const totalPrice = ref(null);
 const orderInfo = ref(null);
+const orderItems = ref([]);
 
 const formatPrice = (value) => {
     
@@ -90,6 +109,9 @@ const formatPrice = (value) => {
 };
 
 onMounted(async () => {
+    // SIMULATION: Giả định đã đăng nhập là Nguyễn Văn A (ID=1)
+    localStorage.setItem('userId', '1');
+
     // Check params
     // 1. COD: ?id=...
     if (route.query.id) {
@@ -139,6 +161,32 @@ onMounted(async () => {
             if (res.data && res.data.maHoaDon) {
                 orderCode.value = res.data.maHoaDon;
             }
+            
+            // Lấy danh sách sản phẩm
+            const data = res.data;
+            const details = data?.hoaDonChiTiets || data?.orderDetails || [];
+            
+            orderItems.value = details.map(d => {
+                const ctsp = d.chiTietSanPham || {};
+                const sp = ctsp.sanPham || {};
+                const ms = ctsp.mauSac || {};
+                const kt = ctsp.kichThuoc || {};
+                
+                let img = null;
+                if (ctsp.anhChiTietSanPhams && ctsp.anhChiTietSanPhams.length > 0) {
+                    img = ctsp.anhChiTietSanPhams[0].duongDanAnh;
+                }
+
+                return {
+                    id: d.id,
+                    tenSanPham: sp.tenSanPham || d.tenSanPham || 'Sản phẩm',
+                    mauSac: ms.tenMauSac || '',
+                    kichThuoc: kt.tenKichThuoc || '',
+                    soLuong: d.soLuong,
+                    donGia: d.donGia,
+                    anh: img
+                };
+            });
         } catch (e) {
             console.error("Failed to fetch order details", e);
         }

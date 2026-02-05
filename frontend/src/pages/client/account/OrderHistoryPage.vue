@@ -24,7 +24,7 @@
                 <span class="fw-bold me-3">Đơn hàng #{{ order.maHoaDon }}</span>
                 <span class="text-muted small">| {{ formatDate(order.ngayTao) }}</span>
             </div>
-            <span class="text-danger fw-bold text-uppercase">{{ order.trangThai }}</span>
+            <span class="fw-bold text-uppercase" :class="getStatusColor(order.trangThai)">{{ order.trangThai }}</span>
         </div>
         <div class="card-body border-top">
             <div class="d-flex">
@@ -43,7 +43,14 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer bg-white border-top-0 d-flex justify-content-end pb-3">
+        <div class="card-footer bg-white border-top-0 d-flex justify-content-end pb-3 gap-2">
+             <button 
+                v-if="order.trangThai === 'Chờ xác nhận'" 
+                class="btn btn-outline-secondary px-4"
+                @click="cancelOrder(order)"
+             >
+                Hủy đơn hàng
+             </button>
              <router-link :to="'/client/account/orders/' + order.id" class="btn btn-danger px-4">Xem chi tiết</router-link>
         </div>
       </div>
@@ -52,7 +59,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
+import Swal from 'sweetalert2';
 
 export default {
   name: "OrderHistoryPage",
@@ -69,13 +77,44 @@ export default {
   methods: {
     async fetchOrders() {
       try {
-        const res = await axios.get(`http://localhost:8080/api/client/orders?customerId=${this.customerId}`);
+        const res = await apiClient.get(`/api/client/orders?customerId=${this.customerId}`);
         this.orders = res.data;
       } catch (error) {
         console.error("Failed to fetch orders", error);
       } finally {
         this.loading = false;
       }
+    },
+    async cancelOrder(order) {
+        const result = await Swal.fire({
+            title: 'Hủy đơn hàng?',
+            text: "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Đồng ý hủy',
+            cancelButtonText: 'Không'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await apiClient.post(`/api/client/orders/${order.id}/cancel?reason=KhachHangHuy`);
+                Swal.fire(
+                    'Đã hủy!',
+                    'Đơn hàng đã được hủy thành công.',
+                    'success'
+                );
+                this.fetchOrders();
+            } catch (e) {
+                console.error(e);
+                Swal.fire(
+                    'Lỗi!',
+                    'Không thể hủy đơn hàng. Vui lòng thử lại.',
+                    'error'
+                );
+            }
+        }
     },
     formatDate(value) {
       if (!value) return '';
@@ -86,9 +125,11 @@ export default {
       if (!value) return '0 đ';
       return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
     },
-    getStatusBadge(status) {
-        // Simple mapping, usually handled by CSS classes or inline style
-        return 'text-danger';
+    getStatusColor(status) {
+        if (status === 'Hoàn thành' || status === 'Đã giao hàng') return 'text-success';
+        if (status === 'Đã hủy') return 'text-secondary';
+        if (status === 'Chờ xác nhận') return 'text-warning';
+        return 'text-danger'; // Default for processing
     }
   }
 }

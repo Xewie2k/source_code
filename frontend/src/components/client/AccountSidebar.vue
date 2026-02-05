@@ -2,7 +2,7 @@
   <div class="account-sidebar bg-white p-3">
     <div class="text-center mb-4">
       <div class="mb-2">
-        <img :src="avatarUrl" class="rounded-circle border" width="80" height="80" alt="Avatar">
+        <img :src="avatarUrl" class="rounded-circle border" width="80" height="80" alt="Avatar" style="object-fit: cover;">
       </div>
       <h6 class="fw-bold mb-1">{{ userName }}</h6>
     </div>
@@ -31,13 +31,25 @@
 </template>
 
 <script>
+import apiClient from '@/services/apiClient';
+
 export default {
   name: "AccountSidebar",
   data() {
     return {
-      userName: 'Nguyen Van A',
+      userName: 'Loading...',
       avatarUrl: 'https://placehold.co/100x100'
     }
+  },
+  async mounted() {
+    // SIMULATION: Giả định đã đăng nhập là Nguyễn Văn A (ID=1)
+    localStorage.setItem('userId', '1');
+    localStorage.setItem('userRole', 'CLIENT');
+
+    // FIX: Backend chưa có endpoint /api/client/profile/1 nên tạm thời hardcode dữ liệu
+    // để tránh lỗi 500 "No static resource"
+    this.userName = 'Nguyễn Văn A';
+    this.avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.userName)}&background=random&color=fff`;
   }
 }
 </script>
