@@ -38,11 +38,8 @@ import ProductDetailPage from "@/pages/client/ProductDetailPage.vue";
 import CartPage from "@/pages/client/CartPage.vue";
 import CheckoutPage from "@/pages/client/CheckoutPage.vue";
 import OrderSuccessPage from "@/pages/client/OrderSuccessPage.vue";
-import AccountLayout from "@/pages/client/account/AccountLayout.vue";
-import OrderHistoryPage from "@/pages/client/account/OrderHistoryPage.vue";
-import OrderTrackingPage from "@/pages/client/account/OrderTrackingPage.vue";
-import ProfilePage from "@/pages/client/account/ProfilePage.vue";
-import AddressPage from "@/pages/client/account/AddressPage.vue";
+import OrderTrackingPublicPage from "@/pages/client/OrderTrackingPublicPage.vue";
+import TraCuuDonPage from "@/pages/client/TraCuuDonPage.vue";
 
 const SimplePage = (title) => ({
   template: `<div class="p-4"><h3 style="font-weight:800">${title}</h3><div class="text-muted">Demo page</div></div>`,
@@ -60,19 +57,9 @@ const routes = [
       { path: "cart", name: "client-cart", component: CartPage },
       { path: "checkout", name: "client-checkout", component: CheckoutPage },
       { path: "success", name: "client-order-success", component: OrderSuccessPage },
-      { 
-        path: "account",
-        component: AccountLayout,
-        redirect: "/client/account/orders",
-        children: [
-            { path: "orders", component: OrderHistoryPage },
-            { path: "orders/:id", name: "client-tracking", component: OrderTrackingPage },
-            { path: "profile", component: ProfilePage },
-            { path: "address", component: AddressPage },
-            { path: "coupons", component: SimplePage("Phiếu giảm giá") },
-            { path: "password", component: SimplePage("Đổi mật khẩu") },
-        ]
-      }
+      { path: "order-success", name: "client-order-success-alt", component: OrderSuccessPage },
+      { path: "track-order", name: "client-track-order", component: OrderTrackingPublicPage },
+      { path: "tra-cuu", name: "client-tra-cuu", component: TraCuuDonPage },
     ]
   },
 

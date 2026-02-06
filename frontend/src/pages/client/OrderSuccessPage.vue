@@ -109,9 +109,6 @@ const formatPrice = (value) => {
 };
 
 onMounted(async () => {
-    // SIMULATION: Giả định đã đăng nhập là Nguyễn Văn A (ID=1)
-    localStorage.setItem('userId', '1');
-
     // Check params
     // 1. COD: ?id=...
     if (route.query.id) {

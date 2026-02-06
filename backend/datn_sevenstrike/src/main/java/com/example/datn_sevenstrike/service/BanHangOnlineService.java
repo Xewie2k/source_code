@@ -7,6 +7,7 @@ import com.example.datn_sevenstrike.exception.BadRequestEx;
 import com.example.datn_sevenstrike.exception.NotFoundEx;
 import com.example.datn_sevenstrike.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +31,10 @@ public class BanHangOnlineService {
     private final LichSuHoaDonRepository lsHdRepo;
     private final KhachHangRepository khachHangRepo;
     private final DiaChiKhachHangRepository diaChiKhachHangRepo;
+    private final OrderEmailService orderEmailService;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     // List all products for client
     @Transactional(readOnly = true)
@@ -252,7 +258,8 @@ public class BanHangOnlineService {
 
         BigDecimal thanhTien = tongTien.subtract(tienGiam); // Ship free
 
-        // Create HoaDon
+        // Create HoaDon (generate tracking token for guest order tracking via email)
+        String trackingToken = UUID.randomUUID().toString().replace("-", "");
         HoaDon hd = HoaDon.builder()
                 .tenKhachHang(req.getTenKhachHang())
                 .soDienThoaiKhachHang(req.getSoDienThoai())
@@ -266,6 +273,7 @@ public class BanHangOnlineService {
                 .phiVanChuyen(BigDecimal.ZERO)
                 .loaiDon(true)
                 .trangThaiHienTai(1)
+                .trackingToken(trackingToken)
                 .ngayTao(LocalDateTime.now())
                 .ngayCapNhat(LocalDateTime.now())
                 .xoaMem(false)
@@ -288,11 +296,38 @@ public class BanHangOnlineService {
                 .build();
         lsHdRepo.save(ls);
 
+        // COD: Gửi email xác nhận ngay sau khi tạo đơn (thanh toán thành công)
+        String email = req.getEmail();
+        if (email != null && !email.isBlank()) {
+            ClientOrderDetailDTO orderDetail = getOrderDetail(hd.getId());
+            String trackingUrl = buildTrackingUrl(hd.getTrackingToken());
+            orderEmailService.sendOrderConfirmationEmail(email.trim(), hd, orderDetail, trackingUrl);
+        }
+
         return OrderResponse.builder()
                 .id(hd.getId())
                 .maHoaDon(hd.getMaHoaDon())
                 .message("Đặt hàng thành công")
                 .build();
+    }
+
+    /**
+     * Lấy chi tiết đơn hàng theo tracking token (không cần đăng nhập).
+     */
+    @Transactional(readOnly = true)
+    public ClientOrderDetailDTO getOrderByTrackingToken(String token) {
+        if (token == null || token.isBlank()) return null;
+        HoaDon hd = hoaDonRepo.findByTrackingTokenAndXoaMemFalse(token.trim())
+                .orElse(null);
+        if (hd == null) return null;
+        return getOrderDetail(hd.getId());
+    }
+
+    /** Dùng chung cho COD và VNPay khi gửi email. */
+    public String buildTrackingUrl(String token) {
+        if (token == null || frontendUrl == null) return frontendUrl;
+        String base = frontendUrl.endsWith("/") ? frontendUrl.substring(0, frontendUrl.length() - 1) : frontendUrl;
+        return base + "/client/track-order?token=" + token;
     }
 
 

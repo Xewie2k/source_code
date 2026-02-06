@@ -357,7 +357,7 @@ const submitOrder = async () => {
             ...form,
             diaChi: fullAddress,
             idPhieuGiamGia: selectedVoucher.value ? selectedVoucher.value.id : null,
-            idKhachHang: 1, // Hardcoded for demo as requested
+            idKhachHang: null, // Khách không cần đăng nhập
             items: displayItems.value.map(item => ({
                 idChiTietSanPham: item.variantId,
                 soLuong: item.quantity

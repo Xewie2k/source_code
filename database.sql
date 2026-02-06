@@ -1145,3 +1145,16 @@ begin catch
     print N'❌ Seed demo data FAILED: ' + error_message();
     throw;
 end catch;
+
+/* =========================================================
+   MIGRATION: Thêm tracking_token cho tra cứu đơn hàng không cần đăng nhập (email)
+   ========================================================= */
+if not exists (
+    select 1 from sys.columns
+    where object_id = object_id('hoa_don') and name = 'tracking_token'
+)
+begin
+    alter table hoa_don add tracking_token varchar(64) null unique;
+    print N'✅ Added tracking_token to hoa_don.';
+end
+go

@@ -56,19 +56,10 @@
                 </span>
              </router-link>
              
-             <!-- User -->
-             <div class="dropdown">
-                 <div class="text-dark cursor-pointer p-1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle fs-4"></i>
-                 </div>
-                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-2">
-                    <li><h6 class="dropdown-header">Xin chào, Khách hàng</h6></li>
-                    <li><router-link class="dropdown-item" to="/client/account/orders">Đơn mua</router-link></li>
-                    <li><router-link class="dropdown-item" to="/client/account/profile">Tài khoản</router-link></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#">Đăng xuất</a></li>
-                 </ul>
-             </div>
+             <!-- Tra cứu đơn hàng -->
+             <router-link to="/client/tra-cuu" class="text-dark p-1" title="Tra cứu đơn hàng">
+                <i class="bi bi-box-seam fs-4"></i>
+             </router-link>
           </div>
         </div>
       </div>
@@ -94,7 +85,7 @@
                 <router-link to="/client/contact" class="nav-link text-dark hover-accent" active-class="text-accent">Liên hệ</router-link>
              </li>
              <li class="nav-item">
-                <router-link to="/client/tracking" class="nav-link text-dark hover-accent" active-class="text-accent">Tra cứu</router-link>
+                <router-link to="/client/tra-cuu" class="nav-link text-dark hover-accent" active-class="text-accent">Tra cứu đơn hàng</router-link>
              </li>
           </ul>
        </div>

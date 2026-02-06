@@ -62,6 +62,9 @@ public class HoaDon {
     @Column(name = "email_khach_hang", length = 255)
     private String emailKhachHang;
 
+    @Column(name = "tracking_token", length = 64, unique = true)
+    private String trackingToken;
+
     // CHỐT: int code (1..7)
     @Column(name = "trang_thai_hien_tai", nullable = false)
     private Integer trangThaiHienTai;

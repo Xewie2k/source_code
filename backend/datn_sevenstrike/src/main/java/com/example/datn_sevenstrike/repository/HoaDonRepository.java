@@ -17,4 +17,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     Optional<HoaDon> findByIdAndXoaMemFalse(Integer id);
 
     List<HoaDon> findAllByIdKhachHangAndXoaMemFalseOrderByIdDesc(Integer idKhachHang);
+
+    Optional<HoaDon> findByTrackingTokenAndXoaMemFalse(String trackingToken);
 }

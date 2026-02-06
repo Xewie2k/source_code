@@ -45,6 +45,13 @@ public class ClientController {
         return ResponseEntity.ok(service.getOrderDetail(id));
     }
 
+    /** Xem trạng thái đơn hàng không cần đăng nhập (qua link trong email) */
+    @GetMapping("/orders/track")
+    public ResponseEntity<ClientOrderDetailDTO> trackOrder(@RequestParam String token) {
+        ClientOrderDetailDTO dto = service.getOrderByTrackingToken(token);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/profile/{id}")
     public ResponseEntity<CustomerProfileDTO> getProfile(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getCustomerProfile(id));
